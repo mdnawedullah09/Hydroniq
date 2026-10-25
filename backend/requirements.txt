@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+pymysql
+ollama
+python-dotenv
