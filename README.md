@@ -49,14 +49,15 @@ Hydroniq explores how open-source AI can help reduce repetitive administrative w
 By keeping the project open source, developers can inspect the implementation, suggest improvements, and adapt the platform to other communities and locations.
 
 
+
 ## 👥 Team
 
 We collaborated on Hydroniq, combining our ideas and development efforts to build an AI-powered water problem reporting platform.
 
 - [**MD Nawedullah Saif**](https://github.com/mdnawedullah09) — Co-Developer
-- [**Jaya Patel**](https://github.com/jaya-patel) — Co-Developer
+- [**Jaya Patel**](https://github.com/jaya030888) — Co-Developer
 
-We shared responsibility for turning Hydroniq from an idea into a working application, with a focus on community welfare, water conservation, and open-source AI.
+We shared responsibility for turning Hydroniq from an idea into a working application, focusing on community welfare, water conservation, and open-source AI.
 
 
 ## 📌 Future Improvements
