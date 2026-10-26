@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import Sidebar from '../components/Sidebar'
 import '../App.css'
 
 const API_URL = 'http://127.0.0.1:8000'
@@ -38,8 +39,8 @@ function AreaMonitoring() {
 
   const areas = Object.values(
     reports.reduce((groups, report) => {
-      const state = report.state?.trim() || 'Unknown state'
-      const district = report.district?.trim() || 'Unknown district'
+      const state = report.state?.trim() || 'General Region'
+      const district = report.district?.trim() || 'Central District'
       const key = `${state}|||${district}`
 
       if (!groups[key]) {
@@ -80,95 +81,74 @@ function AreaMonitoring() {
 
   return (
     <div className="app">
-      <aside className="sidebar">
-        <h2 className="brand">Hydroniq</h2>
-        <p className="sidebar-label">AREA MONITORING</p>
-
-        <nav>
-          <Link className="nav-link" to="/">
-            Dashboard
-          </Link>
-
-          <Link className="nav-link" to="/reports">
-            Water Reports
-          </Link>
-
-          <Link className="nav-link" to="/analytics">
-            Impact Analytics
-          </Link>
-
-          <Link className="nav-link active" to="/area-monitoring">
-            Area Monitoring
-          </Link>
-        </nav>
-
-        <div className="sidebar-bottom">
-          <span className="status-dot"></span>
-          Local AI active
-          <p>Powered by open-source AI</p>
-        </div>
-      </aside>
+      <Sidebar />
 
       <main className="main-content">
         <Link to="/" className="back-link">
-          ← Back to dashboard
+          Back to dashboard
         </Link>
 
-        <header className="topbar report-header">
+        <header className="topbar">
           <div>
             <p className="eyebrow">LOCATION INTELLIGENCE</p>
-            <h1>Area Monitoring</h1>
+            <h1>Area Monitoring Overview</h1>
             <p className="subtitle">
-              Monitor reported water problems across states and districts.
+              Monitor water issue density and resolution distribution across states and districts.
             </p>
           </div>
+
+          <Link to="/reports" className="btn-secondary">
+            All Reports
+          </Link>
         </header>
 
         <section className="analytics-stats-grid">
           <article className="analytics-stat-card">
-            <span className="analytics-stat-icon">📍</span>
-            <p>Areas monitored</p>
+            <p>Active Regions</p>
             <h2>{loading ? '—' : areas.length}</h2>
-            <span>State and district combinations</span>
+            <span>Unique districts monitored</span>
           </article>
 
           <article className="analytics-stat-card">
-            <span className="analytics-stat-icon">📋</span>
-            <p>Total reports</p>
+            <p>Total Submissions</p>
             <h2>{loading ? '—' : reports.length}</h2>
-            <span>All submitted water issues</span>
+            <span>All citizen water reports</span>
           </article>
 
           <article className="analytics-stat-card">
-            <span className="analytics-stat-icon">⏳</span>
-            <p>Pending issues</p>
+            <p>Pending Inquiries</p>
             <h2>{loading ? '—' : pendingCount}</h2>
-            <span>Waiting for action</span>
+            <span>Awaiting local response</span>
           </article>
         </section>
 
         <section className="analytics-panel">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">AREA BREAKDOWN</p>
-              <h2>Water issues by district</h2>
+              <p className="eyebrow">GEOGRAPHIC SPREAD</p>
+              <h2>Water Problems by District</h2>
             </div>
 
             <span className="ai-badge">
-              {loading ? 'Loading...' : `${areas.length} areas`}
+              {loading ? 'Loading...' : `${areas.length} ${areas.length === 1 ? 'Area' : 'Areas'}`}
             </span>
           </div>
 
-          {loading && <p role="status">Loading area data...</p>}
-
-          {error && (
-            <p className="reports-error" role="alert">
-              {error}
+          {loading && (
+            <p role="status" style={{ padding: '20px 0', color: '#0d9488', fontWeight: 600 }}>
+              Aggregating location metrics from database...
             </p>
           )}
 
+          {error && (
+            <div className="alert-error" role="alert">
+              <strong>Error Loading Data</strong>
+              <p>{error}</p>
+            </div>
+          )}
+
           {!loading && !error && areas.length === 0 && (
-            <p>No area data is available yet.</p>
+            <p className="section-description">No area data is available yet.</p>
           )}
 
           {!loading && !error && areas.length > 0 && (
@@ -180,31 +160,38 @@ function AreaMonitoring() {
                 >
                   <div className="analytics-bar-label">
                     <span>
-                      📍 {area.district}, {area.state}
+                      Region: <strong>{area.district}</strong>, {area.state}
                     </span>
-                    <strong>{area.total} reports</strong>
+                    <strong>{area.total} {area.total === 1 ? 'report' : 'reports'}</strong>
                   </div>
 
                   <div className="analytics-bar-track">
                     <div
                       className="analytics-bar-fill"
                       style={{
-                        width: `${(area.total / maxReports) * 100}%`,
+                        width: `${Math.max(5, (area.total / maxReports) * 100)}%`,
                       }}
                     />
                   </div>
 
-                  <p className="analytics-note">
-                    Pending: {area.pending} · In Progress: {area.inProgress}
-                    {' · '}Resolved: {area.resolved}
-                  </p>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                    <span className="status-badge pending" style={{ fontSize: '11px', padding: '3px 8px' }}>
+                      Pending: {area.pending}
+                    </span>
+                    <span className="status-badge in-progress" style={{ fontSize: '11px', padding: '3px 8px' }}>
+                      In Progress: {area.inProgress}
+                    </span>
+                    <span className="status-badge resolved" style={{ fontSize: '11px', padding: '3px 8px' }}>
+                      Resolved: {area.resolved}
+                    </span>
+                  </div>
                 </article>
               ))}
             </div>
           )}
         </section>
 
-        <footer>Hydroniq · Every drop matters.</footer>
+        <footer>Hydroniq · Open Infrastructure Platform</footer>
       </main>
     </div>
   )

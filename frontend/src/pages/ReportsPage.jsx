@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import Sidebar from '../components/Sidebar'
 import '../App.css'
 
 const API_URL = 'http://127.0.0.1:8000/api/reports'
@@ -29,8 +31,6 @@ function ReportsPage() {
       }
 
       const data = await response.json()
-
-      // Backend may return an array directly or an object containing reports.
       const reportList = Array.isArray(data) ? data : data.reports
 
       if (!Array.isArray(reportList)) {
@@ -84,11 +84,8 @@ function ReportsPage() {
 
   function formatDate(dateString) {
     if (!dateString) return 'Date unavailable'
-
     const date = new Date(dateString)
-
     if (Number.isNaN(date.getTime())) return 'Date unavailable'
-
     return date.toLocaleString('en-IN', {
       dateStyle: 'medium',
       timeStyle: 'short',
@@ -134,174 +131,142 @@ function ReportsPage() {
     const matchesDistrict =
       districtFilter === 'All' || report.district === districtFilter
 
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesState &&
-      matchesDistrict
-    )
+    return matchesSearch && matchesStatus && matchesState && matchesDistrict
   })
 
   return (
     <div className="app">
-      <aside className="sidebar">
-        <h2 className="brand">Hydroniq</h2>
-        <p className="sidebar-label">WORKSPACE</p>
-
-        <nav>
-          <a className="nav-link" href="/">
-            Dashboard
-          </a>
-          <a className="nav-link active" href="/reports">
-            Water Reports
-          </a>
-          <a className="nav-link" href="/analytics">
-            Impact Analytics
-          </a>
-        </nav>
-
-        <div className="sidebar-bottom">
-          <span className="status-dot"></span>
-          Local AI active
-          <p>Powered by open-source AI</p>
-        </div>
-      </aside>
+      <Sidebar />
 
       <main className="main-content">
-        <a href="/" className="back-link">
-          ← Back to dashboard
-        </a>
+        <Link to="/" className="back-link">
+          Back to dashboard
+        </Link>
 
-        <header className="topbar report-header">
+        <header className="topbar">
           <div>
-            <p className="eyebrow">COMMUNITY ACTION</p>
-            <h1>Water Reports</h1>
+            <p className="eyebrow">COMMUNITY WATER ACTION</p>
+            <h1>Water Reports Feed</h1>
             <p className="subtitle">
-              View and track water problems reported by the community.
+              Live tracking and status management for community-reported water problems.
             </p>
           </div>
 
-          <span className="ai-badge">
-            {filteredReports.length}{' '}
-            {filteredReports.length === 1 ? 'report' : 'reports'}
-            {searchTerm.trim() ||
-            statusFilter !== 'All' ||
-            stateFilter !== 'All' ||
-            districtFilter !== 'All'
-              ? ' found'
-              : ''}
-          </span>
+          <Link className="primary-button" to="/report">
+            File New Report
+          </Link>
         </header>
 
         <section className="reports-section">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">REPORT TRACKER</p>
-              <h2>Submitted complaints</h2>
+              <p className="eyebrow">DATABASE RECORDS</p>
+              <h2>Submitted Complaints</h2>
             </div>
 
-            <a className="primary-button" href="/report">
-              + New report
-            </a>
+            <span className="ai-badge">
+              {filteredReports.length} {filteredReports.length === 1 ? 'Report' : 'Reports'}
+              {searchTerm.trim() || statusFilter !== 'All' ? ' Filtered' : ''}
+            </span>
           </div>
 
-          {!loading && !error && reports.length > 0 && (
-            <div className="report-search">
-              <input
-                type="search"
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Search ID, issue, state, district, area..."
-                aria-label="Search water reports"
-              />
+          <div className="report-search">
+            <input
+              type="search"
+              className="form-input"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Search by ID, issue type, area, description, or reporter..."
+              aria-label="Search water reports"
+            />
 
-              {searchTerm && (
-                <button
-                  type="button"
-                  className="clear-search-button"
-                  onClick={() => setSearchTerm('')}
-                >
-                  Clear
-                </button>
-              )}
-
-              <select
-                className="status-filter"
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-                aria-label="Filter reports by status"
+            {searchTerm && (
+              <button
+                type="button"
+                className="clear-search-button"
+                onClick={() => setSearchTerm('')}
               >
-                <option value="All">All statuses</option>
-                <option value="Pending">Pending</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Resolved">Resolved</option>
-              </select>
+                Clear
+              </button>
+            )}
 
-              <select
-                className="status-filter"
-                value={stateFilter}
-                onChange={(event) => {
-                  setStateFilter(event.target.value)
-                  setDistrictFilter('All')
-                }}
-                aria-label="Filter reports by state"
-              >
-                <option value="All">All states</option>
-                {states.map((stateName) => (
-                  <option key={stateName} value={stateName}>
-                    {stateName}
-                  </option>
-                ))}
-              </select>
+            <select
+              className="status-filter"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              aria-label="Filter reports by status"
+            >
+              <option value="All">All statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Resolved">Resolved</option>
+            </select>
 
-              <select
-                className="status-filter"
-                value={districtFilter}
-                onChange={(event) => setDistrictFilter(event.target.value)}
-                aria-label="Filter reports by district"
-              >
-                <option value="All">All districts</option>
-                {districts.map((districtName) => (
-                  <option key={districtName} value={districtName}>
-                    {districtName}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+            <select
+              className="status-filter"
+              value={stateFilter}
+              onChange={(event) => {
+                setStateFilter(event.target.value)
+                setDistrictFilter('All')
+              }}
+              aria-label="Filter reports by state"
+            >
+              <option value="All">All states</option>
+              {states.map((stateName) => (
+                <option key={stateName} value={stateName}>
+                  {stateName}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="status-filter"
+              value={districtFilter}
+              onChange={(event) => setDistrictFilter(event.target.value)}
+              aria-label="Filter reports by district"
+            >
+              <option value="All">All districts</option>
+              {districts.map((districtName) => (
+                <option key={districtName} value={districtName}>
+                  {districtName}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {loading && (
-            <p role="status">Loading reports from MySQL...</p>
+            <p role="status" style={{ padding: '20px 0', color: '#0d9488', fontWeight: 600 }}>
+              Loading live records from database...
+            </p>
           )}
 
           {error && (
-            <div className="reports-error" role="alert">
+            <div className="alert-error" role="alert">
+              <strong>Data Load Error</strong>
               <p>{error}</p>
               <button
                 type="button"
                 className="primary-button"
                 onClick={fetchReports}
+                style={{ marginTop: '12px' }}
               >
-                Try again
+                Retry
               </button>
             </div>
           )}
 
           {!loading && !error && reports.length === 0 && (
-            <p>
-              No reports yet. Be the first to report a water problem.
-            </p>
+            <div className="alert-success">
+              <p>No reports currently recorded. Be the first to report a water problem.</p>
+              <Link to="/report">Submit a report now</Link>
+            </div>
           )}
 
-          {!loading &&
-            !error &&
-            reports.length > 0 &&
-            filteredReports.length === 0 && (
-              <p className="no-search-results">
-                No reports match your search or filters. Try changing your
-                search or choosing All.
-              </p>
-            )}
+          {!loading && !error && reports.length > 0 && filteredReports.length === 0 && (
+            <div className="alert-error" style={{ background: '#f8fafc', borderColor: '#cbd5e1', color: '#334155' }}>
+              <p>No reports match your current filter criteria. Try clearing search filters.</p>
+            </div>
+          )}
 
           {!loading && !error && filteredReports.length > 0 && (
             <div className="water-reports-list">
@@ -323,17 +288,17 @@ function ReportsPage() {
 
                   <h3>{report.issue_type || 'Water problem'}</h3>
 
-                  {(report.state || report.district) && (
-                    <p className="water-report-area">
-                      🗺️ {[report.district, report.state]
-                        .filter(Boolean)
-                        .join(', ')}
-                    </p>
-                  )}
+                  <div>
+                    {(report.district || report.state) && (
+                      <span className="water-report-area">
+                        Region: {[report.district, report.state].filter(Boolean).join(', ')}
+                      </span>
+                    )}
 
-                  <p className="water-report-area">
-                    📍 {report.area || 'Area not provided'}
-                  </p>
+                    <span className="water-report-area">
+                      Area: {report.area || 'Not specified'}
+                    </span>
+                  </div>
 
                   <p className="water-report-description">
                     {report.description}
@@ -341,7 +306,7 @@ function ReportsPage() {
 
                   <div className="report-status-controls">
                     <label htmlFor={`status-${report.id}`}>
-                      Update status
+                      Status:
                     </label>
 
                     <select
@@ -358,15 +323,17 @@ function ReportsPage() {
                     </select>
 
                     {updatingId === report.id && (
-                      <span role="status">Saving...</span>
+                      <span role="status" style={{ fontSize: '13px', color: '#0d9488', fontWeight: 600 }}>
+                        Updating...
+                      </span>
                     )}
                   </div>
 
                   <div className="water-report-meta">
                     <span>
-                      Reported by: {report.reporter_name || 'Anonymous'}
+                      Reporter: <strong>{report.reporter_name || 'Anonymous Citizen'}</strong>
                     </span>
-                    <span>{formatDate(report.created_at)}</span>
+                    <span>Date: {formatDate(report.created_at)}</span>
                   </div>
                 </article>
               ))}
@@ -374,7 +341,7 @@ function ReportsPage() {
           )}
         </section>
 
-        <footer>Hydroniq · Every drop matters.</footer>
+        <footer>Hydroniq · Open Infrastructure Platform</footer>
       </main>
     </div>
   )
